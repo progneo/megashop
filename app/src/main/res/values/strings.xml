@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MegaShop</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <!--Icons descriptions-->
+    <string name="icon_filled_star">Filled star icon</string>
+    <string name="icon_half_filled_star">Half-filled star icon</string>
+    <string name="icon_empty_star">Empty star icon</string>
+    <!--Button text-->
+    <string name="button_reload">Reload</string>
 </resources>
