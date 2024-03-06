@@ -1,5 +1,6 @@
 package me.progneo.megashop.ui.screen.main
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,9 @@ import me.progneo.megashop.data.enum.PageStatus
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.ui.component.NoInternetConnectionPanel
 import me.progneo.megashop.ui.component.ProductCard
+import me.progneo.megashop.ui.component.UnexpectedErrorPanel
 import me.progneo.megashop.ui.util.AnimatedVisibility
+import me.progneo.megashop.ui.util.NavDestinations
 import me.progneo.megashop.ui.util.OnBottomReached
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 
@@ -55,7 +58,8 @@ fun MainScreen(
     MainScreen(
         productList = productList,
         pageStatus = pageStatus,
-        onLoadMore = viewModel::fetchProductList
+        onLoadMore = viewModel::fetchProductList,
+        onProductClick = { navController.navigate("${NavDestinations.PRODUCT_SCREEN}/$it") }
     )
 }
 
@@ -64,7 +68,8 @@ fun MainScreen(
 fun MainScreen(
     productList: List<Product>,
     pageStatus: PageStatus,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    onProductClick: (Int) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
@@ -113,8 +118,13 @@ fun MainScreen(
                 ) {
                     ProductList(
                         productList = productList,
-                        onLoadMore = onLoadMore
+                        onLoadMore = onLoadMore,
+                        onProductClick = onProductClick
                     )
+                }
+
+                AnimatedVisibility(visible = pageStatus == PageStatus.Error) {
+                    UnexpectedErrorPanel()
                 }
             }
         }
@@ -124,7 +134,8 @@ fun MainScreen(
 @Composable
 fun ProductList(
     productList: List<Product>,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    onProductClick: (Int) -> Unit
 ) {
     val gridState = rememberLazyStaggeredGridState()
     gridState.OnBottomReached(6) {
@@ -139,7 +150,12 @@ fun ProductList(
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
         content = {
             items(productList) { product ->
-                ProductCard(product = product, modifier = Modifier.fillMaxWidth())
+                ProductCard(
+                    product = product,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onProductClick(product.id) }
+                )
             }
         },
         modifier = Modifier.fillMaxSize()
@@ -156,7 +172,8 @@ fun MainScreenPreview(
     MainScreen(
         productList = productList,
         pageStatus = PageStatus.Complete,
-        onLoadMore = {}
+        onLoadMore = {},
+        onProductClick = {}
     )
 }
 
@@ -166,7 +183,8 @@ fun MainScreenNetworkUnavailablePreview() {
     MainScreen(
         productList = listOf(),
         pageStatus = PageStatus.NetworkUnavailable,
-        onLoadMore = {}
+        onLoadMore = {},
+        onProductClick = {}
     )
 }
 
@@ -176,7 +194,8 @@ fun MainScreenFirstLoadingPreview() {
     MainScreen(
         productList = listOf(),
         pageStatus = PageStatus.FirstLoading,
-        onLoadMore = {}
+        onLoadMore = {},
+        onProductClick = {}
     )
 }
 
@@ -186,6 +205,7 @@ fun MainScreenEmptyListPreview() {
     MainScreen(
         productList = listOf(),
         pageStatus = PageStatus.Complete,
-        onLoadMore = {}
+        onLoadMore = {},
+        onProductClick = {}
     )
 }

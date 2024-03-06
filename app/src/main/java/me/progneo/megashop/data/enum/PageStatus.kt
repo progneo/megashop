@@ -5,5 +5,6 @@ enum class PageStatus {
     FirstLoading,
     Loading,
     NetworkUnavailable,
-    Complete
+    Complete,
+    Error
 }

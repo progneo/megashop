@@ -3,7 +3,6 @@ package me.progneo.megashop.ui.screen.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,10 +52,8 @@ class MainViewModel @Inject constructor(
                         }
                     } catch (ex: NoConnectivityException) {
                         _pageStatus.tryEmit(PageStatus.NetworkUnavailable)
-                    } catch (ex: SocketTimeoutException) {
-                        // TODO: add toast probably?
                     } catch (ex: Exception) {
-                        // TODO: add toast probably?
+                        _pageStatus.tryEmit(PageStatus.Error)
                     }
                 }
             }

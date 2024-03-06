@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import me.progneo.megashop.ui.screen.main.MainScreen
+import me.progneo.megashop.ui.component.navigation.NavGraph
 import me.progneo.megashop.ui.theme.MegaShopTheme
 
 @AndroidEntryPoint
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MegaShopTheme {
                 val navController = rememberNavController()
-                MainScreen(navController = navController)
+                NavGraph(navController = navController)
             }
         }
     }
