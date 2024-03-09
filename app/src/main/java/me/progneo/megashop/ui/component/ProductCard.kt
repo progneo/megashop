@@ -5,14 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,8 +29,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import kotlin.math.roundToInt
+import me.progneo.megashop.R
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
+import me.progneo.megashop.ui.util.shimmerEffect
 
 @Composable
 fun ProductCard(
@@ -43,22 +47,45 @@ fun ProductCard(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
-            SubcomposeAsyncImage(
-                model = product.thumbnail,
-                contentDescription = product.description,
-                contentScale = ContentScale.Crop,
-                loading = {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-            )
+            Box {
+                SubcomposeAsyncImage(
+                    model = product.thumbnail,
+                    contentDescription = product.description,
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(
+                            modifier = Modifier
+                                .shimmerEffect()
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(topEnd = 8.dp, bottomStart = 8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(4.dp)
+                        .align(Alignment.TopEnd),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(R.drawable.star_filled),
+                        contentDescription = stringResource(R.string.icon_filled_star),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = product.rating.toString(),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
             Column(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(10.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Column {
@@ -76,17 +103,25 @@ fun ProductCard(
                         maxLines = 1
                     )
                 }
-                RatingBlock(rating = product.rating)
-                if (product.discountPercentage != 0f) {
-                    PriceWithDiscount(
-                        price = product.price,
-                        discountPercentage = product.discountPercentage
-                    )
-                } else {
-                    Text(
-                        text = "${product.price} $",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                Box {
+                    if (product.stock == 0) {
+                        Text(
+                            text = "Out of stock",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    } else {
+                        if (product.discountPercentage != 0f) {
+                            PriceWithDiscount(
+                                price = product.price,
+                                discountPercentage = product.discountPercentage
+                            )
+                        } else {
+                            Text(
+                                text = "${product.price} $",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -94,16 +129,27 @@ fun ProductCard(
 }
 
 @Composable
-fun PriceWithDiscount(price: Int, discountPercentage: Float) {
+private fun PriceWithDiscount(price: Int, discountPercentage: Float) {
     val newPrice = (price * (1 - discountPercentage / 100)).roundToInt()
+
     Column {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "$newPrice $",
                 style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                modifier = Modifier.weight(1f),
+                text = "$price $",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    textDecoration = TextDecoration.LineThrough
+                ),
+                color = MaterialTheme.colorScheme.secondary,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
             Box(
                 modifier = Modifier
@@ -112,18 +158,11 @@ fun PriceWithDiscount(price: Int, discountPercentage: Float) {
             ) {
                 Text(
                     text = "-${discountPercentage.roundToInt()}%",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error
                 )
             }
         }
-        Text(
-            text = "$price $",
-            style = MaterialTheme.typography.titleSmall.copy(
-                textDecoration = TextDecoration.LineThrough
-            ),
-            color = MaterialTheme.colorScheme.secondary
-        )
     }
 }
 

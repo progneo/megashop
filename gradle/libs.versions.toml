@@ -14,6 +14,7 @@ dagger = "2.50"
 hilt = "1.2.0"
 ksp = "1.9.22-1.0.17"
 coil = "2.6.0"
+accompanist = "0.34.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

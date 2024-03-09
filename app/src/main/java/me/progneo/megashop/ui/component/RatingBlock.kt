@@ -13,12 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import me.progneo.megashop.R
 
 @Composable
-fun RatingBlock(rating: Float, modifier: Modifier = Modifier) {
+fun RatingBlock(rating: Float, modifier: Modifier = Modifier, size: Dp = 16.dp) {
     val roundedRating = (rating * 2).roundToInt() / 2f
     Row(
         modifier = modifier,
@@ -29,21 +30,21 @@ fun RatingBlock(rating: Float, modifier: Modifier = Modifier) {
             for (i in 0..4) {
                 if (roundedRating - i >= 1) {
                     Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(size),
                         painter = painterResource(R.drawable.star_filled),
                         contentDescription = stringResource(R.string.icon_filled_star),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 } else if (roundedRating - i == 0.5f) {
                     Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(size),
                         painter = painterResource(R.drawable.star_half),
                         contentDescription = stringResource(R.string.icon_half_filled_star),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 } else {
                     Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(size),
                         painter = painterResource(R.drawable.star_empty),
                         contentDescription = stringResource(R.string.icon_empty_star),
                         tint = MaterialTheme.colorScheme.primary

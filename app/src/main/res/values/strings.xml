@@ -8,4 +8,7 @@
     <string name="icon_empty_star">Empty star icon</string>
     <!--Button text-->
     <string name="button_reload">Reload</string>
+    <string name="button_return_to_main_screen_button">Return to main screen button</string>
+    <!--Images descriptions-->
+    <string name="image_of_product">Image of product</string>
 </resources>
