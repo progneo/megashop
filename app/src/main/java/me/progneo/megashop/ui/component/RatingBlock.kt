@@ -12,11 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import me.progneo.megashop.R
+import me.progneo.megashop.ui.theme.MegaShopTheme
 
 @Composable
 fun RatingBlock(rating: Float, modifier: Modifier = Modifier, size: Dp = 16.dp) {
@@ -55,10 +56,12 @@ fun RatingBlock(rating: Float, modifier: Modifier = Modifier, size: Dp = 16.dp) 
     }
 }
 
-@Preview(name = "Rating Block", showBackground = true)
+@PreviewLightDark
 @Composable
 fun RatingBlockPreview() {
-    Box(modifier = Modifier.padding(8.dp)) {
-        RatingBlock(rating = 3.33f)
+    MegaShopTheme {
+        Box(modifier = Modifier.padding(8.dp)) {
+            RatingBlock(rating = 3.33f)
+        }
     }
 }

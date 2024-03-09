@@ -15,12 +15,21 @@ internal class ProductRepositoryImpl @Inject constructor(
 
     override suspend fun getProductList(
         skip: Int,
-        limit: Int
+        limit: Int,
+        title: String?
     ): Result<List<Product>> {
-        val response = productService.getProductList(
-            skip = skip,
-            limit = limit
-        )
+        val response = if (title == null) {
+            productService.getProductList(
+                skip = skip,
+                limit = limit
+            )
+        } else {
+            productService.getProductListByTitle(
+                skip = skip,
+                limit = limit,
+                title = title
+            )
+        }
 
         if (!response.isSuccessful) {
             return Result.failure(
@@ -35,7 +44,7 @@ internal class ProductRepositoryImpl @Inject constructor(
 
         if (productListResponse != null) {
             val productList = productListResponse.products
-            cachedList.addAll(productList)
+            cachedList.addAll(elements = productList, index = 0)
             cachedList.distinctBy { it.id }
             return Result.success(productList)
         }
@@ -48,6 +57,7 @@ internal class ProductRepositoryImpl @Inject constructor(
         )
     }
 
+    // todo: decide the way to get single product (in real cases data in cached list may be deprecated)
     override suspend fun getProduct(id: Int): Result<Product> {
         return cachedList.find { it.id == id }?.let { project ->
             Result.success(project)

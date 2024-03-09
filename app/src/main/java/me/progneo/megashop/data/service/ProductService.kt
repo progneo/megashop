@@ -19,4 +19,11 @@ internal interface ProductService {
     suspend fun getProduct(
         @Path("id") id: Int = 0
     ): Response<Product>
+
+    @GET("products/search")
+    suspend fun getProductListByTitle(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int,
+        @Query("q") title: String
+    ): Response<ProductListResponse>
 }

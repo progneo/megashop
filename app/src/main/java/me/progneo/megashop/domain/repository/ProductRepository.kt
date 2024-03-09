@@ -6,7 +6,8 @@ interface ProductRepository {
 
     suspend fun getProductList(
         skip: Int,
-        limit: Int
+        limit: Int,
+        title: String? = null
     ): Result<List<Product>>
 
     suspend fun getProduct(id: Int): Result<Product>

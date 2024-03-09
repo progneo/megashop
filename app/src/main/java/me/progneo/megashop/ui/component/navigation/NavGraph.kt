@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import me.progneo.megashop.ui.screen.main.MainScreen
 import me.progneo.megashop.ui.screen.product.ProductScreen
+import me.progneo.megashop.ui.screen.search.SearchScreen
 import me.progneo.megashop.ui.util.NavDestinations
 
 @Composable
@@ -19,6 +20,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(route = "${NavDestinations.PRODUCT_SCREEN}/{productId}") {
             ProductScreen(navController = navController)
+        }
+        composable(route = NavDestinations.SEARCH_SCREEN) {
+            SearchScreen(navController = navController)
         }
     }
 }

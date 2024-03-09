@@ -24,13 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import kotlin.math.roundToInt
 import me.progneo.megashop.R
 import me.progneo.megashop.domain.entities.Product
+import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 import me.progneo.megashop.ui.util.shimmerEffect
 
@@ -45,6 +46,7 @@ fun ProductCard(
         ),
         modifier = modifier
             .background(MaterialTheme.colorScheme.background)
+            .height(290.dp)
     ) {
         Column {
             Box {
@@ -166,12 +168,18 @@ private fun PriceWithDiscount(price: Int, discountPercentage: Float) {
     }
 }
 
-@Preview(name = "Product card", showBackground = true)
+@PreviewLightDark
 @Composable
 fun ProductCardPreview(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
-    Box(modifier = Modifier.padding(25.dp)) {
-        ProductCard(product = product)
+    MegaShopTheme {
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(25.dp)
+        ) {
+            ProductCard(product = product)
+        }
     }
 }

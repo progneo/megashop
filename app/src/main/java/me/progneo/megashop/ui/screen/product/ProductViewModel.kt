@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.progneo.megashop.data.enum.PageStatus
 import me.progneo.megashop.data.exception.NoConnectivityException
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.domain.usecase.GetProductUseCase
@@ -26,34 +25,34 @@ class ProductViewModel @Inject constructor(
     private val _product = MutableStateFlow<Product?>(null)
     val product = _product.asStateFlow()
 
-    private val _pageStatus = MutableStateFlow(PageStatus.None)
-    val pageStatus = _pageStatus.asStateFlow()
+    private val _uiState = MutableStateFlow<ProductUiState>(ProductUiState.Waiting)
+    val uiState = _uiState.asStateFlow()
 
     fun fetchProduct() {
         viewModelScope.launch {
             try {
                 val productId = _productIdString.toInt()
 
-                _pageStatus.tryEmit(PageStatus.Loading)
+                _uiState.tryEmit(ProductUiState.Loading)
 
                 withContext(Dispatchers.IO) {
                     try {
                         getProductUseCase(productId).let { result ->
                             result.getOrNull()?.let { product ->
                                 _product.tryEmit(product)
-                                _pageStatus.tryEmit(PageStatus.Complete)
+                                _uiState.tryEmit(ProductUiState.Success)
                             } ?: {
-                                _pageStatus.tryEmit(PageStatus.Error)
+                                _uiState.tryEmit(ProductUiState.Error)
                             }
                         }
                     } catch (ex: NoConnectivityException) {
-                        _pageStatus.tryEmit(PageStatus.NetworkUnavailable)
+                        _uiState.tryEmit(ProductUiState.NetworkUnavailable)
                     } catch (ex: Exception) {
-                        _pageStatus.tryEmit(PageStatus.Error)
+                        _uiState.tryEmit(ProductUiState.Error)
                     }
                 }
             } catch (ex: ClassCastException) {
-                _pageStatus.tryEmit(PageStatus.Error)
+                _uiState.tryEmit(ProductUiState.Error)
             }
         }
     }

@@ -42,9 +42,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -54,11 +55,11 @@ import coil.compose.SubcomposeAsyncImage
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import me.progneo.megashop.R
-import me.progneo.megashop.data.enum.PageStatus
 import me.progneo.megashop.domain.entities.Product
+import me.progneo.megashop.ui.component.IconPanel
 import me.progneo.megashop.ui.component.NoInternetConnectionPanel
 import me.progneo.megashop.ui.component.RatingBlock
-import me.progneo.megashop.ui.component.UnexpectedErrorPanel
+import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.AnimatedVisibility
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 import me.progneo.megashop.ui.util.shimmerEffect
@@ -69,7 +70,7 @@ fun ProductScreen(
     viewModel: ProductViewModel = hiltViewModel()
 ) {
     val product by viewModel.product.collectAsState()
-    val pageStatus by viewModel.pageStatus.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchProduct()
@@ -77,7 +78,7 @@ fun ProductScreen(
 
     ProductScreen(
         product = product,
-        pageStatus = pageStatus,
+        uiState = uiState,
         onReload = viewModel::fetchProduct,
         onClickReturn = navController::popBackStack
     )
@@ -87,7 +88,7 @@ fun ProductScreen(
 @Composable
 fun ProductScreen(
     product: Product?,
-    pageStatus: PageStatus,
+    uiState: ProductUiState,
     onReload: () -> Unit,
     onClickReturn: () -> Unit
 ) {
@@ -118,28 +119,33 @@ fun ProductScreen(
                 .padding(innerPadding)
         ) {
             Box {
-                AnimatedVisibility(visible = pageStatus == PageStatus.NetworkUnavailable) {
+                AnimatedVisibility(
+                    visible = uiState == ProductUiState.NetworkUnavailable
+                ) {
                     NoInternetConnectionPanel(
                         onReloadClick = onReload,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
 
-                AnimatedVisibility(visible = pageStatus == PageStatus.Loading) {
+                AnimatedVisibility(visible = uiState == ProductUiState.Loading) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
 
-                AnimatedVisibility(visible = pageStatus == PageStatus.Error) {
-                    UnexpectedErrorPanel()
+                AnimatedVisibility(visible = uiState == ProductUiState.Error) {
+                    IconPanel(
+                        iconPainter = painterResource(R.drawable.broken_image),
+                        text = stringResource(R.string.something_went_wrong)
+                    )
                 }
 
-                AnimatedVisibility(visible = product != null && pageStatus == PageStatus.Complete) {
+                AnimatedVisibility(
+                    visible = product != null && uiState == ProductUiState.Success
+                ) {
                     ProductInfo(product = product!!)
                 }
-
-                // todo: remove two states and make one with loading in product info
             }
         }
     }
@@ -265,8 +271,10 @@ private fun ImageCarousel(imageUrlList: List<String>, modifier: Modifier = Modif
                     contentScale = ContentScale.Fit,
                     loading = {
                         Box(
-                            modifier = Modifier.fillMaxSize()
-                                .clip(RoundedCornerShape(16.dp)).shimmerEffect()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(16.dp))
+                                .shimmerEffect()
                         )
                     },
                     modifier = Modifier
@@ -337,15 +345,17 @@ private fun PriceWithDiscount(price: Int, discountPercentage: Float) {
     }
 }
 
-@Preview(name = "Product screen")
+@PreviewLightDark
 @Composable
 fun PreviewProductScreen(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
-    ProductScreen(
-        product = product,
-        pageStatus = PageStatus.Complete,
-        onReload = {},
-        onClickReturn = {}
-    )
+    MegaShopTheme {
+        ProductScreen(
+            product = product,
+            uiState = ProductUiState.Success,
+            onReload = {},
+            onClickReturn = {}
+        )
+    }
 }
