@@ -30,9 +30,7 @@ class ProductListByCategoryViewModel @Inject constructor(
     private var _currentPage = MutableStateFlow(0)
 
     fun fetchProductList() {
-        if (_uiState.value is ProductListUiState.Success ||
-            _uiState.value is ProductListUiState.Waiting
-        ) {
+        if (_uiState.value !is ProductListUiState.Loading) {
             _uiState.tryEmit(ProductListUiState.Loading)
             call(
                 useCaseCall = {
