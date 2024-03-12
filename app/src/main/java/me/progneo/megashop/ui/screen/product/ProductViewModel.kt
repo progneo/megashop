@@ -1,59 +1,47 @@
 package me.progneo.megashop.ui.screen.product
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import me.progneo.megashop.data.exception.NoConnectivityException
-import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.domain.usecase.GetProductUseCase
+import me.progneo.megashop.ui.screen.BaseViewModel
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getProductUseCase: GetProductUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _productIdString: String = checkNotNull(savedStateHandle["productId"])
 
-    private val _product = MutableStateFlow<Product?>(null)
-    val product = _product.asStateFlow()
-
-    private val _uiState = MutableStateFlow<ProductUiState>(ProductUiState.Waiting)
+    private val _uiState = MutableStateFlow<ProductUiState>(ProductUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     fun fetchProduct() {
-        viewModelScope.launch {
-            try {
-                val productId = _productIdString.toInt()
+        try {
+            val productId = _productIdString.toInt()
 
-                _uiState.tryEmit(ProductUiState.Loading)
-
-                withContext(Dispatchers.IO) {
-                    try {
-                        getProductUseCase(productId).let { result ->
-                            result.getOrNull()?.let { product ->
-                                _product.tryEmit(product)
-                                _uiState.tryEmit(ProductUiState.Success)
-                            } ?: {
-                                _uiState.tryEmit(ProductUiState.Error)
-                            }
-                        }
-                    } catch (ex: NoConnectivityException) {
-                        _uiState.tryEmit(ProductUiState.NetworkUnavailable)
-                    } catch (ex: Exception) {
-                        _uiState.tryEmit(ProductUiState.Error)
-                    }
+            call(
+                useCaseCall = {
+                    getProductUseCase(productId)
+                },
+                onSuccess = { product ->
+                    _uiState.tryEmit(ProductUiState.Success(product))
+                },
+                onError = {
+                    _uiState.tryEmit(ProductUiState.Error)
+                },
+                onNetworkUnavailable = {
+                    _uiState.tryEmit(ProductUiState.NetworkUnavailable)
+                },
+                onTimeout = {
+                    _uiState.tryEmit(ProductUiState.Error) // todo: add state with timeout probably
                 }
-            } catch (ex: ClassCastException) {
-                _uiState.tryEmit(ProductUiState.Error)
-            }
+            )
+        } catch (ex: NumberFormatException) {
+            _uiState.tryEmit(ProductUiState.Error)
         }
     }
 }

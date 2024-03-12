@@ -1,29 +1,25 @@
 package me.progneo.megashop.ui.screen.search
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import me.progneo.megashop.data.exception.NoConnectivityException
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.domain.usecase.GetProductListByTitleUseCase
+import me.progneo.megashop.ui.component.product.list.ProductListUiState
+import me.progneo.megashop.ui.screen.BaseViewModel
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getProductListByTitleUseCase: GetProductListByTitleUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _productList = MutableStateFlow<List<Product>>(listOf())
     val productList = _productList.asStateFlow()
 
-    private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Waiting)
+    private val _uiState = MutableStateFlow<ProductListUiState>(ProductListUiState.Waiting)
     val uiState = _uiState.asStateFlow()
 
     private var _searchQuery = MutableStateFlow(savedStateHandle["searchQuery"] ?: "")
@@ -38,34 +34,35 @@ class SearchViewModel @Inject constructor(
     }
 
     fun fetchProductList() {
-        viewModelScope.launch {
-            if (_uiState.value == SearchUiState.Success ||
-                _uiState.value == SearchUiState.Waiting
-            ) {
-                _uiState.tryEmit(SearchUiState.Loading)
-
-                withContext(Dispatchers.IO) {
-                    try {
-                        getProductListByTitleUseCase(
-                            skip = PAGE_SIZE * _currentPage,
-                            limit = PAGE_SIZE,
-                            title = _searchQuery.value
-                        ).let { result ->
-                            result.getOrNull()?.let { productList ->
-                                if (productList.isNotEmpty()) {
-                                    _productList.tryEmit(_productList.value + productList)
-                                    _currentPage += 1
-                                }
-                            }
-                            _uiState.tryEmit(SearchUiState.Success)
-                        }
-                    } catch (ex: NoConnectivityException) {
-                        _uiState.tryEmit(SearchUiState.NetworkUnavailable)
-                    } catch (ex: Exception) {
-                        _uiState.tryEmit(SearchUiState.Error)
+        if (_uiState.value is ProductListUiState.Success ||
+            _uiState.value is ProductListUiState.Waiting
+        ) {
+            _uiState.tryEmit(ProductListUiState.Loading)
+            call(
+                useCaseCall = {
+                    getProductListByTitleUseCase(
+                        skip = PAGE_SIZE * _currentPage,
+                        limit = PAGE_SIZE,
+                        title = _searchQuery.value
+                    )
+                },
+                onSuccess = { productList ->
+                    if (productList.isNotEmpty()) {
+                        _productList.tryEmit(_productList.value + productList)
+                        _currentPage += 1
                     }
+                    _uiState.tryEmit(ProductListUiState.Success)
+                },
+                onError = {
+                    _uiState.tryEmit(ProductListUiState.Error)
+                },
+                onNetworkUnavailable = {
+                    _uiState.tryEmit(ProductListUiState.NetworkUnavailable)
+                },
+                onTimeout = {
+                    _uiState.tryEmit(ProductListUiState.Error)
                 }
-            }
+            )
         }
     }
 

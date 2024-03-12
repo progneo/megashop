@@ -11,10 +11,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -37,12 +39,12 @@ import androidx.navigation.NavController
 import me.progneo.megashop.R
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.ui.component.IconPanel
-import me.progneo.megashop.ui.component.NoInternetConnectionPanel
-import me.progneo.megashop.ui.component.ProductList
 import me.progneo.megashop.ui.component.TextField
+import me.progneo.megashop.ui.component.navigation.NavDestinations
+import me.progneo.megashop.ui.component.product.list.ProductList
+import me.progneo.megashop.ui.component.product.list.ProductListUiState
 import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.AnimatedVisibility
-import me.progneo.megashop.ui.util.NavDestinations
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 
 @Composable
@@ -69,7 +71,7 @@ fun SearchScreen(
 @Composable
 fun SearchScreen(
     productList: List<Product>,
-    uiState: SearchUiState,
+    uiState: ProductListUiState,
     searchQuery: String,
     onLoadMore: () -> Unit,
     onProductClick: (Int) -> Unit,
@@ -103,7 +105,7 @@ fun SearchScreen(
                                 Icon(
                                     painter = painterResource(R.drawable.search),
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    contentDescription = "Search icon" // todo: move to res
+                                    contentDescription = stringResource(R.string.icon_search)
                                 )
                             }
                         }
@@ -114,7 +116,7 @@ fun SearchScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(
-                                R.string.button_return_to_main_screen_button
+                                R.string.button_return_to_previous_screen_button
                             )
                         )
                     }
@@ -130,15 +132,24 @@ fun SearchScreen(
         ) {
             Box {
                 AnimatedVisibility(
-                    visible = uiState == SearchUiState.NetworkUnavailable
+                    visible = uiState is ProductListUiState.NetworkUnavailable
                 ) {
-                    NoInternetConnectionPanel(
-                        onReloadClick = onLoadMore,
-                        modifier = Modifier.fillMaxSize()
+                    IconPanel(
+                        iconPainter = painterResource(R.drawable.wifi_off),
+                        text = stringResource(R.string.no_internet_connection),
+                        modifier = Modifier.fillMaxSize(),
+                        content = {
+                            FilledTonalButton(
+                                content = {
+                                    Text(stringResource(R.string.button_refresh))
+                                },
+                                onClick = onLoadMore
+                            )
+                        }
                     )
                 }
 
-                AnimatedVisibility(visible = uiState == SearchUiState.Waiting) {
+                AnimatedVisibility(visible = uiState is ProductListUiState.Waiting) {
                     IconPanel(
                         iconPainter = painterResource(R.drawable.search),
                         text = stringResource(R.string.enter_search_text),
@@ -147,7 +158,7 @@ fun SearchScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = productList.isEmpty() && uiState == SearchUiState.Success
+                    visible = productList.isEmpty() && uiState is ProductListUiState.Success
                 ) {
                     IconPanel(
                         iconPainter = painterResource(R.drawable.search_off),
@@ -157,17 +168,17 @@ fun SearchScreen(
                 }
 
                 AnimatedVisibility(
-                    uiState == SearchUiState.Success || uiState == SearchUiState.Loading
+                    uiState is ProductListUiState.Success || uiState is ProductListUiState.Loading
                 ) {
                     ProductList(
                         productList = productList,
-                        isLoading = uiState == SearchUiState.Loading,
+                        isLoading = uiState == ProductListUiState.Loading,
                         onLoadMore = onLoadMore,
                         onProductClick = onProductClick
                     )
                 }
 
-                AnimatedVisibility(visible = uiState == SearchUiState.Error) {
+                AnimatedVisibility(visible = uiState is ProductListUiState.Error) {
                     IconPanel(
                         iconPainter = painterResource(R.drawable.broken_image),
                         text = stringResource(R.string.something_went_wrong),
@@ -180,7 +191,6 @@ fun SearchScreen(
 }
 
 @PreviewLightDark
-@Preview(name = "Search screen with products")
 @Composable
 fun SearchScreenPreview(
     @PreviewParameter(SampleProductProvider::class) product: Product
@@ -189,8 +199,8 @@ fun SearchScreenPreview(
     MegaShopTheme {
         SearchScreen(
             productList = productList,
-            uiState = SearchUiState.Success,
-            searchQuery = "",
+            uiState = ProductListUiState.Success,
+            searchQuery = "Query",
             onLoadMore = {},
             onProductClick = {},
             onSearchClick = {},
@@ -205,7 +215,7 @@ fun SearchScreenWaitingPreview() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),
-            uiState = SearchUiState.Waiting,
+            uiState = ProductListUiState.Waiting,
             searchQuery = "",
             onLoadMore = {},
             onProductClick = {},
@@ -221,7 +231,7 @@ fun SearchScreenNetworkUnavailablePreview() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),
-            uiState = SearchUiState.NetworkUnavailable,
+            uiState = ProductListUiState.NetworkUnavailable,
             searchQuery = "",
             onLoadMore = {},
             onProductClick = {},
@@ -237,7 +247,7 @@ fun SearchScreenEmptyListPreview() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),
-            uiState = SearchUiState.Success,
+            uiState = ProductListUiState.Success,
             searchQuery = "",
             onLoadMore = {},
             onProductClick = {},

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,8 +58,7 @@ import kotlin.math.roundToInt
 import me.progneo.megashop.R
 import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.ui.component.IconPanel
-import me.progneo.megashop.ui.component.NoInternetConnectionPanel
-import me.progneo.megashop.ui.component.RatingBlock
+import me.progneo.megashop.ui.component.product.RatingBlock
 import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.AnimatedVisibility
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
@@ -69,7 +69,6 @@ fun ProductScreen(
     navController: NavController,
     viewModel: ProductViewModel = hiltViewModel()
 ) {
-    val product by viewModel.product.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -77,20 +76,18 @@ fun ProductScreen(
     }
 
     ProductScreen(
-        product = product,
         uiState = uiState,
-        onReload = viewModel::fetchProduct,
-        onClickReturn = navController::popBackStack
+        onReloadClick = viewModel::fetchProduct,
+        onReturnClick = navController::popBackStack
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductScreen(
-    product: Product?,
     uiState: ProductUiState,
-    onReload: () -> Unit,
-    onClickReturn: () -> Unit
+    onReloadClick: () -> Unit,
+    onReturnClick: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -101,11 +98,11 @@ fun ProductScreen(
                 title = {},
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
-                    IconButton(onClick = onClickReturn) {
+                    IconButton(onClick = onReturnClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(
-                                R.string.button_return_to_main_screen_button
+                                R.string.button_return_to_previous_screen_button
                             )
                         )
                     }
@@ -119,32 +116,47 @@ fun ProductScreen(
                 .padding(innerPadding)
         ) {
             Box {
-                AnimatedVisibility(
-                    visible = uiState == ProductUiState.NetworkUnavailable
-                ) {
-                    NoInternetConnectionPanel(
-                        onReloadClick = onReload,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                AnimatedVisibility(visible = uiState is ProductUiState.Success) {
+                    ProductInfo(product = (uiState as ProductUiState.Success).product)
                 }
 
-                AnimatedVisibility(visible = uiState == ProductUiState.Loading) {
+                AnimatedVisibility(visible = uiState is ProductUiState.Loading) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
 
-                AnimatedVisibility(visible = uiState == ProductUiState.Error) {
+                AnimatedVisibility(
+                    visible = uiState is ProductUiState.NetworkUnavailable
+                ) {
                     IconPanel(
-                        iconPainter = painterResource(R.drawable.broken_image),
-                        text = stringResource(R.string.something_went_wrong)
+                        iconPainter = painterResource(R.drawable.wifi_off),
+                        text = stringResource(R.string.no_internet_connection),
+                        modifier = Modifier.fillMaxSize(),
+                        content = {
+                            FilledTonalButton(
+                                content = {
+                                    Text(stringResource(R.string.button_refresh))
+                                },
+                                onClick = onReloadClick
+                            )
+                        }
                     )
                 }
 
-                AnimatedVisibility(
-                    visible = product != null && uiState == ProductUiState.Success
-                ) {
-                    ProductInfo(product = product!!)
+                AnimatedVisibility(visible = uiState is ProductUiState.Error) {
+                    IconPanel(
+                        iconPainter = painterResource(R.drawable.broken_image),
+                        text = stringResource(R.string.something_went_wrong),
+                        content = {
+                            FilledTonalButton(
+                                content = {
+                                    Text(stringResource(R.string.button_refresh))
+                                },
+                                onClick = onReloadClick
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -303,7 +315,7 @@ private fun ImageCarousel(imageUrlList: List<String>, modifier: Modifier = Modif
                         .padding(3.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .size(8.dp)
+                        .size(6.dp)
                 )
             }
         }
@@ -352,10 +364,9 @@ fun PreviewProductScreen(
 ) {
     MegaShopTheme {
         ProductScreen(
-            product = product,
-            uiState = ProductUiState.Success,
-            onReload = {},
-            onClickReturn = {}
+            uiState = ProductUiState.Success(product = product),
+            onReloadClick = {},
+            onReturnClick = {}
         )
     }
 }

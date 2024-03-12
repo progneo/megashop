@@ -1,4 +1,4 @@
-package me.progneo.megashop.ui.component
+package me.progneo.megashop.ui.component.product.list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import me.progneo.megashop.domain.entities.Product
+import me.progneo.megashop.ui.component.product.ProductCard
 import me.progneo.megashop.ui.util.OnBottomReached
 import me.progneo.megashop.ui.util.shimmerEffect
 

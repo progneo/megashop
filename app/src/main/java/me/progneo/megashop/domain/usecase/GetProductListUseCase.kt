@@ -9,6 +9,6 @@ class GetProductListUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(skip: Int, limit: Int): Result<List<Product>> {
-        return productRepository.getProductList(skip, limit)
+        return productRepository.getProductList(skip = skip, limit = limit)
     }
 }

@@ -11,8 +11,6 @@ internal class ProductRepositoryImpl @Inject constructor(
     private val productService: ProductService
 ) : ProductRepository {
 
-    private val cachedList: MutableList<Product> = mutableListOf()
-
     override suspend fun getProductList(
         skip: Int,
         limit: Int,
@@ -43,10 +41,7 @@ internal class ProductRepositoryImpl @Inject constructor(
         val productListResponse = response.body()
 
         if (productListResponse != null) {
-            val productList = productListResponse.products
-            cachedList.addAll(elements = productList, index = 0)
-            cachedList.distinctBy { it.id }
-            return Result.success(productList)
+            return Result.success(productListResponse.products)
         }
 
         return Result.failure(
@@ -57,34 +52,63 @@ internal class ProductRepositoryImpl @Inject constructor(
         )
     }
 
-    // todo: decide the way to get single product (in real cases data in cached list may be deprecated)
-    override suspend fun getProduct(id: Int): Result<Product> {
-        return cachedList.find { it.id == id }?.let { project ->
-            Result.success(project)
-        } ?: run {
-            val response = productService.getProduct(id)
+    override suspend fun getProductListByCategory(
+        skip: Int,
+        limit: Int,
+        category: String
+    ): Result<List<Product>> {
+        val response = productService.getProductListByCategory(
+            category = category,
+            skip = skip,
+            limit = limit
+        )
 
-            if (!response.isSuccessful) {
-                return Result.failure(
-                    RequestException(
-                        code = response.code(),
-                        message = response.message()
-                    )
-                )
-            }
-
-            val product = response.body()
-
-            if (product != null) {
-                return Result.success(product)
-            }
-
+        if (!response.isSuccessful) {
             return Result.failure(
                 RequestException(
-                    code = HttpURLConnection.HTTP_INTERNAL_ERROR,
-                    message = "An error occurred!"
+                    code = response.code(),
+                    message = response.message()
                 )
             )
         }
+
+        val productListResponse = response.body()
+
+        if (productListResponse != null) {
+            return Result.success(productListResponse.products)
+        }
+
+        return Result.failure(
+            RequestException(
+                code = HttpURLConnection.HTTP_INTERNAL_ERROR,
+                message = "An error occurred!"
+            )
+        )
+    }
+
+    override suspend fun getProduct(id: Int): Result<Product> {
+        val response = productService.getProduct(id)
+
+        if (!response.isSuccessful) {
+            return Result.failure(
+                RequestException(
+                    code = response.code(),
+                    message = response.message()
+                )
+            )
+        }
+
+        val product = response.body()
+
+        if (product != null) {
+            return Result.success(product)
+        }
+
+        return Result.failure(
+            RequestException(
+                code = HttpURLConnection.HTTP_INTERNAL_ERROR,
+                message = "An error occurred!"
+            )
+        )
     }
 }

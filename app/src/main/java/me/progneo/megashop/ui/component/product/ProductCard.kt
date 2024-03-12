@@ -1,4 +1,4 @@
-package me.progneo.megashop.ui.component
+package me.progneo.megashop.ui.component.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -1,4 +1,4 @@
-package me.progneo.megashop.ui.screen.main
+package me.progneo.megashop.ui.screen.category.products
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -39,36 +39,37 @@ import me.progneo.megashop.ui.util.AnimatedVisibility
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 
 @Composable
-fun MainScreen(
+fun ProductListByCategoryScreen(
     navController: NavController,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: ProductListByCategoryViewModel = hiltViewModel()
 ) {
     val productList by viewModel.productList.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val category by viewModel.category.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchProductList()
     }
 
-    MainScreen(
+    ProductListByCategoryScreen(
+        category = category,
         productList = productList,
         uiState = uiState,
         onLoadMore = viewModel::fetchProductList,
         onProductClick = { navController.navigate("${NavDestinations.PRODUCT_SCREEN}/$it") },
-        onSearchClick = { navController.navigate(NavDestinations.SEARCH_SCREEN) },
-        onCategoryClick = { navController.navigate(NavDestinations.CATEGORY_LIST_SCREEN) }
+        onReturnClick = navController::popBackStack
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
+fun ProductListByCategoryScreen(
+    category: String,
     productList: List<Product>,
     uiState: ProductListUiState,
     onLoadMore: () -> Unit,
     onProductClick: (Int) -> Unit,
-    onSearchClick: () -> Unit,
-    onCategoryClick: () -> Unit
+    onReturnClick: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -76,18 +77,20 @@ fun MainScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("All products") },
-                actions = {
-                    IconButton(onClick = onCategoryClick) {
+                title = {
+                    Text(
+                        category.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }.replace('-', ' ')
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onReturnClick) {
                         Icon(
-                            painter = painterResource(R.drawable.category),
-                            contentDescription = stringResource(R.string.button_search)
-                        )
-                    }
-                    IconButton(onClick = onSearchClick) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = stringResource(R.string.button_search)
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(
+                                R.string.button_return_to_previous_screen_button
+                            )
                         )
                     }
                 },
@@ -169,51 +172,21 @@ fun MainScreen(
     }
 }
 
-@Preview(name = "Main screen with products")
+@PreviewLightDark
 @Composable
-fun MainScreenPreview(
+fun PreviewProductListByCategoryScreen(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
     val productList = listOf(product, product, product, product, product, product, product)
 
     MegaShopTheme {
-        MainScreen(
+        ProductListByCategoryScreen(
+            category = product.category,
             productList = productList,
             uiState = ProductListUiState.Success,
             onLoadMore = {},
             onProductClick = {},
-            onSearchClick = {},
-            onCategoryClick = {}
-        )
-    }
-}
-
-@Preview(name = "Main screen network unavailable")
-@Composable
-fun MainScreenNetworkUnavailablePreview() {
-    MegaShopTheme {
-        MainScreen(
-            productList = listOf(),
-            uiState = ProductListUiState.NetworkUnavailable,
-            onLoadMore = {},
-            onProductClick = {},
-            onSearchClick = {},
-            onCategoryClick = {}
-        )
-    }
-}
-
-@Preview(name = "Main screen empty list")
-@Composable
-fun MainScreenEmptyListPreview() {
-    MegaShopTheme {
-        MainScreen(
-            productList = listOf(),
-            uiState = ProductListUiState.Success,
-            onLoadMore = {},
-            onProductClick = {},
-            onSearchClick = {},
-            onCategoryClick = {}
+            onReturnClick = {}
         )
     }
 }

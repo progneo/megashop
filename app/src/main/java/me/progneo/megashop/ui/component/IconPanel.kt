@@ -23,7 +23,12 @@ import me.progneo.megashop.R
 import me.progneo.megashop.ui.theme.MegaShopTheme
 
 @Composable
-fun IconPanel(iconPainter: Painter, text: String, modifier: Modifier = Modifier) {
+fun IconPanel(
+    iconPainter: Painter,
+    text: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (() -> Unit)? = null
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
@@ -42,6 +47,7 @@ fun IconPanel(iconPainter: Painter, text: String, modifier: Modifier = Modifier)
             color = MaterialTheme.colorScheme.secondary,
             textAlign = TextAlign.Center
         )
+        content?.invoke()
     }
 }
 

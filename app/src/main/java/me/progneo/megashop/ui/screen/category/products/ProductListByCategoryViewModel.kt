@@ -1,18 +1,25 @@
-package me.progneo.megashop.ui.screen.main
+package me.progneo.megashop.ui.screen.category.products
 
+import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import me.progneo.megashop.domain.entities.Product
-import me.progneo.megashop.domain.usecase.GetProductListUseCase
+import me.progneo.megashop.domain.usecase.GetProductListByCategoryUseCase
+import me.progneo.megashop.ui.component.navigation.NavArguments
 import me.progneo.megashop.ui.component.product.list.ProductListUiState
 import me.progneo.megashop.ui.screen.BaseViewModel
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    private val getProductListUseCase: GetProductListUseCase
+class ProductListByCategoryViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val getProductListByCategoryUseCase: GetProductListByCategoryUseCase
 ) : BaseViewModel() {
+
+    private val _categoryString: String = checkNotNull(savedStateHandle[NavArguments.CATEGORY])
+    private val _category = MutableStateFlow(_categoryString)
+    val category = _category.asStateFlow()
 
     private val _productList = MutableStateFlow<List<Product>>(listOf())
     val productList = _productList.asStateFlow()
@@ -29,9 +36,10 @@ class MainViewModel @Inject constructor(
             _uiState.tryEmit(ProductListUiState.Loading)
             call(
                 useCaseCall = {
-                    getProductListUseCase(
+                    getProductListByCategoryUseCase(
                         skip = PAGE_SIZE * _currentPage.value,
-                        limit = PAGE_SIZE
+                        limit = PAGE_SIZE,
+                        category = _category.value
                     )
                 },
                 onSuccess = { productList ->

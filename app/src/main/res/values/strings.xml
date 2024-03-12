@@ -3,15 +3,17 @@
     <string name="no_internet_connection">No internet connection</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="nothing_was_found">Nothing was found</string>
+    <string name="enter_search_text">Enter search text</string>
     <!--Icons descriptions-->
     <string name="icon_filled_star">Filled star icon</string>
     <string name="icon_half_filled_star">Half-filled star icon</string>
     <string name="icon_empty_star">Empty star icon</string>
+    <string name="icon_search">Search icon</string>
+    <string name="icon_arrow_right">Arrow right icon</string>
     <!--Button text-->
-    <string name="button_reload">Reload</string>
-    <string name="button_return_to_main_screen_button">Return to main screen button</string>
+    <string name="button_refresh">Refresh</string>
+    <string name="button_return_to_previous_screen_button">Return to previous screen button</string>
     <string name="button_search">Search button</string>
     <!--Images descriptions-->
     <string name="image_of_product">Image of product</string>
-    <string name="enter_search_text">Enter search text</string>
 </resources>
