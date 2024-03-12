@@ -34,6 +34,7 @@ import me.progneo.megashop.R
 import me.progneo.megashop.domain.entities.Category
 import me.progneo.megashop.ui.component.IconPanel
 import me.progneo.megashop.ui.component.category.CategoryListItem
+import me.progneo.megashop.ui.component.category.CategoryListItemPlaceholder
 import me.progneo.megashop.ui.component.navigation.NavDestinations
 import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.AnimatedVisibility
@@ -107,6 +108,11 @@ fun CategoryListScreen(
                 }
 
                 AnimatedVisibility(visible = uiState is CategoryListUiState.Loading) {
+                    Column {
+                        repeat(10) {
+                            CategoryListItemPlaceholder()
+                        }
+                    }
                 }
 
                 AnimatedVisibility(visible = uiState is CategoryListUiState.NetworkUnavailable) {

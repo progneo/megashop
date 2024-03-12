@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -49,6 +48,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -63,6 +63,7 @@ import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.AnimatedVisibility
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 import me.progneo.megashop.ui.util.shimmerEffect
+import me.progneo.megashop.ui.util.toDp
 
 @Composable
 fun ProductScreen(
@@ -121,9 +122,7 @@ fun ProductScreen(
                 }
 
                 AnimatedVisibility(visible = uiState is ProductUiState.Loading) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+                    ProductInfoPlaceholder()
                 }
 
                 AnimatedVisibility(
@@ -239,6 +238,64 @@ fun ProductInfo(product: Product) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ProductInfoPlaceholder() {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .shimmerEffect()
+            )
+            Row(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(50.dp, 6.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .shimmerEffect()
+                )
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(50.dp, 16.sp.toDp())
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmerEffect()
+            )
+            Box(
+                modifier = Modifier
+                    .size(200.dp, 22.sp.toDp())
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmerEffect()
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(140.dp, 30.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .shimmerEffect()
+        )
+        Box(
+            modifier = Modifier
+                .size(170.dp, 22.sp.toDp())
+                .clip(RoundedCornerShape(8.dp))
+                .shimmerEffect()
+        )
     }
 }
 
@@ -365,6 +422,18 @@ fun PreviewProductScreen(
     MegaShopTheme {
         ProductScreen(
             uiState = ProductUiState.Success(product = product),
+            onReloadClick = {},
+            onReturnClick = {}
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun PreviewProductScreenLoading() {
+    MegaShopTheme {
+        ProductScreen(
+            uiState = ProductUiState.Loading,
             onReloadClick = {},
             onReturnClick = {}
         )

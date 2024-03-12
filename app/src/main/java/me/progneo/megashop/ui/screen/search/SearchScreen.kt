@@ -192,7 +192,7 @@ fun SearchScreen(
 
 @PreviewLightDark
 @Composable
-fun SearchScreenPreview(
+fun PreviewSearchScreen(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
     val productList = listOf(product, product, product, product, product, product, product)
@@ -211,7 +211,7 @@ fun SearchScreenPreview(
 
 @Preview(name = "Waiting for the search query")
 @Composable
-fun SearchScreenWaitingPreview() {
+fun PreviewSearchScreenWaiting() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),
@@ -227,7 +227,7 @@ fun SearchScreenWaitingPreview() {
 
 @Preview(name = "Search screen network unavailable")
 @Composable
-fun SearchScreenNetworkUnavailablePreview() {
+fun PreviewSearchScreenNetworkUnavailable() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),
@@ -243,7 +243,7 @@ fun SearchScreenNetworkUnavailablePreview() {
 
 @Preview(name = "Search screen empty list")
 @Composable
-fun SearchScreenEmptyListPreview() {
+fun PreviewSearchScreenEmptyList() {
     MegaShopTheme {
         SearchScreen(
             productList = listOf(),

@@ -171,7 +171,7 @@ fun MainScreen(
 
 @Preview(name = "Main screen with products")
 @Composable
-fun MainScreenPreview(
+fun PreviewMainScreen(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
     val productList = listOf(product, product, product, product, product, product, product)
@@ -190,7 +190,7 @@ fun MainScreenPreview(
 
 @Preview(name = "Main screen network unavailable")
 @Composable
-fun MainScreenNetworkUnavailablePreview() {
+fun PreviewMainScreenNetworkUnavailable() {
     MegaShopTheme {
         MainScreen(
             productList = listOf(),
@@ -205,7 +205,7 @@ fun MainScreenNetworkUnavailablePreview() {
 
 @Preview(name = "Main screen empty list")
 @Composable
-fun MainScreenEmptyListPreview() {
+fun PreviewMainScreenEmptyList() {
     MegaShopTheme {
         MainScreen(
             productList = listOf(),

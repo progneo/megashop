@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import kotlin.math.roundToInt
 import me.progneo.megashop.R
@@ -34,6 +35,7 @@ import me.progneo.megashop.domain.entities.Product
 import me.progneo.megashop.ui.theme.MegaShopTheme
 import me.progneo.megashop.ui.util.provider.SampleProductProvider
 import me.progneo.megashop.ui.util.shimmerEffect
+import me.progneo.megashop.ui.util.toDp
 
 @Composable
 fun ProductCard(
@@ -168,9 +170,64 @@ private fun PriceWithDiscount(price: Int, discountPercentage: Float) {
     }
 }
 
+@Composable
+fun ProductCardPlaceholder() {
+    Column {
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 3.dp
+            ),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .height(290.dp)
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .shimmerEffect()
+                )
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp, 14.sp.toDp())
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .shimmerEffect()
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(150.dp, 16.sp.toDp())
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .shimmerEffect()
+                            )
+                        }
+                    }
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .size(90.dp, 16.sp.toDp())
+                                .clip(RoundedCornerShape(8.dp))
+                                .shimmerEffect()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
-fun ProductCardPreview(
+fun PreviewProductCard(
     @PreviewParameter(SampleProductProvider::class) product: Product
 ) {
     MegaShopTheme {
@@ -180,6 +237,20 @@ fun ProductCardPreview(
                 .padding(25.dp)
         ) {
             ProductCard(product = product)
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun PreviewProductCardPlaceholder() {
+    MegaShopTheme {
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(25.dp)
+        ) {
+            ProductCardPlaceholder()
         }
     }
 }

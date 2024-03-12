@@ -58,7 +58,7 @@ fun RatingBlock(rating: Float, modifier: Modifier = Modifier, size: Dp = 16.dp) 
 
 @PreviewLightDark
 @Composable
-fun RatingBlockPreview() {
+fun PreviewRatingBlock() {
     MegaShopTheme {
         Box(modifier = Modifier.padding(8.dp)) {
             RatingBlock(rating = 3.33f)
